@@ -63,8 +63,8 @@ fun LikeScreen(
     viewModel: LikeViewModel = hiltViewModel(),
     image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit,
     reviewId: Int,
-    onImage: () -> Unit,
-    onName: () -> Unit,
+    onImage: (Int) -> Unit,
+    onName: (Int) -> Unit,
     onBack: () -> Unit,
 ) {
 
@@ -97,9 +97,9 @@ fun LikeScreen(
                             url = list[it].url,
                             name = list[it].name,
                             isFollow = list[it].isFollow,
-                            onImage = onImage,
+                            onImage = { onImage.invoke(list[it].followerId) },
                             onFollow = { viewModel.follow(list[it].followerId) },
-                            onName = onName
+                            onName = { onName.invoke(list[it].followerId) }
                         )
                     }
                 }
