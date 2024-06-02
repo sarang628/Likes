@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.height(LocalConfiguration.current.screenHeightDp.dp)) {
                         LikeScreen(
                             image = provideTorangAsyncImage(),
-                            reviewId = 399,
+                            reviewId = 405,
                             onName = {},
                             onImage = {},
                             onBack = {}
