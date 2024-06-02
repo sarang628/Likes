@@ -5,8 +5,10 @@ import com.sarang.library.FollowUseCase
 import com.sarang.library.GetLikesUseCase
 import com.sarang.library.Like
 import com.sarang.library.LikeUiState
+import com.sarang.library.UnFollowUseCase
 import com.sarang.torang.BuildConfig
 import com.sarang.torang.api.ApiLike
+import com.sarang.torang.repository.FollowRepository
 import com.sarang.torang.session.SessionService
 import dagger.Module
 import dagger.Provides
@@ -27,6 +29,7 @@ class LikesModule {
                         Int = reviewId.toString(),
                         auth = sessionService.getToken() ?: ""
                     )
+                    Log.d("__provideGetLikesUseCase", "follower Ids: ${result.map { it.followerId }}")
                     return LikeUiState.Success(
                         result.map {
                             Like(
@@ -45,13 +48,26 @@ class LikesModule {
     }
 
     @Provides
-    fun provideFollowUseCase(apilike: ApiLike, sessionService: SessionService): FollowUseCase {
+    fun provideFollowUseCase(followRepository: FollowRepository): FollowUseCase {
         return object : FollowUseCase {
-            override suspend fun invoke(reviewId: Int): Boolean {
-                Log.d("__provideGetLikesUseCase", "invoke: $reviewId")
+            override suspend fun invoke(userId: Int): Boolean {
                 try {
+                    followRepository.follow(userId)
                     return true
+                } catch (e: Exception) {
+                    return false
+                }
+            }
+        }
+    }
 
+    @Provides
+    fun provideUnFollowUseCase(followRepository: FollowRepository): UnFollowUseCase {
+        return object : UnFollowUseCase {
+            override suspend fun invoke(userId: Int): Boolean {
+                try {
+                    followRepository.unFollow(userId)
+                    return true
                 } catch (e: Exception) {
                     return false
                 }

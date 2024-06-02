@@ -1,5 +1,6 @@
 package com.sarang.library
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,6 +14,7 @@ import javax.inject.Inject
 class LikeViewModel @Inject constructor(
     private val useCase: GetLikesUseCase,
     private val followUseCase: FollowUseCase,
+    private val unFollowUseCase: UnFollowUseCase,
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<LikeUiState> = MutableStateFlow(LikeUiState.Loading)
     val uiState = _uiState.asStateFlow()
@@ -25,7 +27,31 @@ class LikeViewModel @Inject constructor(
 
     fun follow(userId: Int) {
         viewModelScope.launch {
-            followUseCase.invoke(userId)
+            val uiState = _uiState.value
+            if (uiState is LikeUiState.Success) {
+                uiState.list.find { it.followerId == userId }?.let {
+                    if (!it.isFollow) {
+                        followUseCase.invoke(userId)
+                        _uiState.update {
+                            (it as LikeUiState.Success).copy(it.list.map { it ->
+                                if (it.followerId == userId) {
+                                    Log.d("__LikeViewModel", "follow: ${it.followerId} == $userId")
+                                    it.copy(isFollow = true)
+                                } else it
+                            })
+                        }
+                    } else {
+                        unFollowUseCase.invoke(userId)
+                        _uiState.update {
+                            (it as LikeUiState.Success).copy(it.list.map { it ->
+                                if (it.followerId == userId) it.copy(
+                                    isFollow = false
+                                ) else it
+                            })
+                        }
+                    }
+                }
+            }
         }
     }
 }

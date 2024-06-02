@@ -184,7 +184,7 @@ fun likeRowConstraintSet(): ConstraintSet {
 @Preview
 @Composable
 fun test() {
-    LikeRow(
+    LikeRow(/*Preview*/
         image = { _, _, _, _, _ -> },
         url = "",
         name = "aaa",
