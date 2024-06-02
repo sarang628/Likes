@@ -47,7 +47,7 @@ data class Like(
     val url: String,
     val name: String,
     val isFollow: Boolean,
-    val followerId: Int
+    val followerId: Int,
 )
 
 sealed interface LikeUiState {
@@ -65,6 +65,7 @@ fun LikeScreen(
     reviewId: Int,
     onImage: () -> Unit,
     onName: () -> Unit,
+    onBack: () -> Unit,
 ) {
 
     LaunchedEffect(key1 = reviewId) {
@@ -77,7 +78,7 @@ fun LikeScreen(
         TopAppBar(
             title = { Text(text = "Likes", fontWeight = FontWeight.Bold) },
             navigationIcon = {
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowBack,
                         contentDescription = ""
@@ -97,7 +98,7 @@ fun LikeScreen(
                             name = list[it].name,
                             isFollow = list[it].isFollow,
                             onImage = onImage,
-                            onFollow = {viewModel.follow(list[it].followerId)},
+                            onFollow = { viewModel.follow(list[it].followerId) },
                             onName = onName
                         )
                     }

@@ -35,7 +35,8 @@ class MainActivity : ComponentActivity() {
                             image = provideTorangAsyncImage(),
                             reviewId = 399,
                             onName = {},
-                            onImage = {}
+                            onImage = {},
+                            onBack = {}
                         )
                     }
                     LoginRepositoryTest(loginRepository = loginRepository)
