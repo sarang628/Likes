@@ -1,6 +1,7 @@
 package com.sarang.torang.di.likes
 
 import android.util.Log
+import com.sarang.library.FollowUseCase
 import com.sarang.library.GetLikesUseCase
 import com.sarang.library.Like
 import com.sarang.library.LikeUiState
@@ -38,6 +39,21 @@ class LikesModule {
                     )
                 } catch (e: Exception) {
                     return LikeUiState.Error
+                }
+            }
+        }
+    }
+
+    @Provides
+    fun provideFollowUseCase(apilike: ApiLike, sessionService: SessionService): FollowUseCase {
+        return object : FollowUseCase {
+            override suspend fun invoke(reviewId: Int): Boolean {
+                Log.d("__provideGetLikesUseCase", "invoke: $reviewId")
+                try {
+                    return true
+
+                } catch (e: Exception) {
+                    return false
                 }
             }
         }
