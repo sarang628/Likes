@@ -14,6 +14,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import retrofit2.HttpException
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -22,14 +23,14 @@ class LikesModule {
     @Provides
     fun provideGetLikesUseCase(apilike: ApiLike, sessionService: SessionService): GetLikesUseCase {
         return object : GetLikesUseCase {
+            val tag = "__provideGetLikesUseCase"
             override suspend fun invoke(reviewId: Int): LikeUiState {
-                Log.d("__provideGetLikesUseCase", "invoke: $reviewId")
                 try {
                     val result = apilike.getLikeUserByReviewId(
                         Int = reviewId.toString(),
                         auth = sessionService.getToken() ?: ""
                     )
-                    Log.d("__provideGetLikesUseCase", "follower Ids: ${result.map { it.followerId }}")
+                    Log.d(tag, "getLikeUserByReviewId(API) reviewId: $reviewId, result: ${result.size}")
                     return LikeUiState.Success(
                         result.map {
                             Like(
@@ -40,9 +41,12 @@ class LikesModule {
                             )
                         }
                     )
+                } catch (e: HttpException) {
+                    Log.e(tag, "${e.response()?.errorBody()?.string()}")
                 } catch (e: Exception) {
-                    return LikeUiState.Error
+                    Log.e(tag, "$e")
                 }
+                return LikeUiState.Error
             }
         }
     }

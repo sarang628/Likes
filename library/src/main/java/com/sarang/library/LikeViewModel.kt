@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LikeViewModel @Inject constructor(
-    private val useCase: GetLikesUseCase,
+    private val getLikeUseCase: GetLikesUseCase,
     private val followUseCase: FollowUseCase,
     private val unFollowUseCase: UnFollowUseCase,
 ) : ViewModel() {
@@ -21,7 +21,7 @@ class LikeViewModel @Inject constructor(
 
     fun loadLikes(reviewId: Int) {
         viewModelScope.launch {
-            _uiState.value = useCase.invoke(reviewId)
+            _uiState.value = getLikeUseCase.invoke(reviewId)
         }
     }
 
