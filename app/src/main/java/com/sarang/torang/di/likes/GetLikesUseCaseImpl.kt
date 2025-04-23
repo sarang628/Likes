@@ -3,17 +3,21 @@ package com.sarang.torang.di.likes
 import android.util.Log
 import com.sarang.library.FollowUseCase
 import com.sarang.library.GetLikesUseCase
+import com.sarang.library.IsLoginUseCase
 import com.sarang.library.Like
 import com.sarang.library.LikeUiState
 import com.sarang.library.UnFollowUseCase
 import com.sarang.torang.BuildConfig
 import com.sarang.torang.api.ApiLike
 import com.sarang.torang.repository.FollowRepository
+import com.sarang.torang.repository.LikeRepository
+import com.sarang.torang.repository.LoginRepository
 import com.sarang.torang.session.SessionService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.Flow
 import retrofit2.HttpException
 
 @Module
@@ -21,16 +25,21 @@ import retrofit2.HttpException
 class LikesModule {
 
     @Provides
-    fun provideGetLikesUseCase(apilike: ApiLike, sessionService: SessionService): GetLikesUseCase {
+    fun provideGetLikesUseCase(
+        likeRepository: LikeRepository,
+        sessionService: SessionService
+    ): GetLikesUseCase {
         return object : GetLikesUseCase {
             val tag = "__provideGetLikesUseCase"
             override suspend fun invoke(reviewId: Int): LikeUiState {
                 try {
-                    val result = apilike.getLikeUserByReviewId(
-                        Int = reviewId.toString(),
-                        auth = sessionService.getToken() ?: ""
+
+                    val result = likeRepository.getLikeUserFromReview(reviewId)
+                    
+                    Log.d(
+                        tag,
+                        "getLikeUserByReviewId(API) reviewId: $reviewId, result: ${result.size}"
                     )
-                    Log.d(tag, "getLikeUserByReviewId(API) reviewId: $reviewId, result: ${result.size}")
                     return LikeUiState.Success(
                         result.map {
                             Like(
@@ -75,6 +84,15 @@ class LikesModule {
                 } catch (e: Exception) {
                     return false
                 }
+            }
+        }
+    }
+
+    @Provides
+    fun provideIsLoginUseCase(loginRepository: LoginRepository): IsLoginUseCase {
+        return object : IsLoginUseCase {
+            override fun invoke(): Flow<Boolean> {
+                return loginRepository.isLogin
             }
         }
     }
